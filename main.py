@@ -19,9 +19,16 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
 
+class BlogPost(db.Model):
+    title = db.StringProperty(required = True)
+    post_input= db.StringProperty(required = True)
+    created= db.DateTimeProperty(auto_now_add = True)
+
 class MainPage(Handler):
+
     def get(self):
-        self.render("homepage.html")
+        posts= db.GqlQuery("SELECT * FROM BlogPost ORDER BY created DESC LIMIT 5")
+        self.render("homepage.html", posts = posts)
 
 class NewPost(Handler):
     def render_newpost(self, title="", post_input="", error=""):
@@ -36,7 +43,10 @@ class NewPost(Handler):
         post_input= self.request.get("post_input")
 
         if title and post_input:
-            self.write("Thanks!")
+            new_post= BlogPost(title= title, post_input= post_input)
+            new_post.put()
+
+            self.redirect("/blog")
         else:
             error= "We need a title and post!"
             self.render_newpost(title, post_input, error)

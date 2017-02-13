@@ -2,7 +2,12 @@
 
 {% block content %}
 
-<p>Haley</p> 
+{% for post in posts %}
+    <div class="art">
+        <div class="art-title"><a href="'/blog/' + {{post.id}}">{{post.title}}</a></div>
+        <pre class="art-body">{{post.post_input}}</pre>
+    </div>
+{% endfor %}
 
 
 {% endblock %}
