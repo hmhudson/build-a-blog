@@ -34,7 +34,6 @@ class NewPost(Handler):
     def render_newpost(self, title="", post_input="", error=""):
         self.render("new-post.html", title= title, post_input= post_input, error= error)
 
-
     def get(self):
         self.render_newpost()
 
@@ -45,14 +44,23 @@ class NewPost(Handler):
         if title and post_input:
             new_post= BlogPost(title= title, post_input= post_input)
             new_post.put()
+            id = new_post.key().id()
 
-            self.redirect("/blog")
+            self.redirect("/blog/" + str(id))
         else:
             error= "We need a title and post!"
             self.render_newpost(title, post_input, error)
 
+class ViewPostHandler(Handler):
+    def get(self, id):
+        post= BlogPost.get_by_id(int(id))
+        self.render("individual_post.html", post= post)
+
+
+
 
 app = webapp2.WSGIApplication([
     ('/blog', MainPage),
-    ('/newpost', NewPost)
+    ('/newpost', NewPost),
+    webapp2.Route('/blog/<id:\d+>', ViewPostHandler)
 ], debug=True)
